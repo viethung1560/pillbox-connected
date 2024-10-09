@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\MedecineBox;
 use App\Entity\Treatment;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -13,18 +14,25 @@ class TreatmentFixtures extends Fixture
     {
         $faker = Factory::create();
 
-        // Générer 10 traitements
-        for ($i = 1; $i <= 10; $i++) {
+        $medecineBoxs = $manager->getRepository(MedecineBox::class)->findAll();
+
+        foreach ($medecineBoxs as $medecineBox) {
             $treatment = new Treatment();
+            $treatment->setMedecineBox($medecineBox);
+            $treatment->setCompartement($faker->numberBetween(1, 2));
             $treatment->setFrequency($faker->randomElement([1, 2, 3])); // 1 à 3 fois par jour
             $treatment->setLastTakingTime($faker->dateTimeBetween('-1 days', 'now')); // Dernière prise dans les 24 heures
 
             $manager->persist($treatment);
-
-            // Ajouter une référence pour lier avec TreatmentTime et MedecineBox
-            $this->addReference('treatment_' . $i, $treatment);
         }
 
         $manager->flush();
+    }
+
+    public function getDependencies()
+    {
+        return [
+            MedecineBoxFixtures::class, // Assurer que DrugFixtures soit chargée avant
+        ];
     }
 }

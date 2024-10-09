@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TreatmentRepository::class)]
 class Treatment
@@ -14,19 +15,20 @@ class Treatment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getTreatment"])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(["getTreatment"])]
     private ?int $frequency = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(["getTreatment"])]
     private ?\DateTimeInterface $last_taking_time = null;
 
     /**
      * @var Collection<int, MedecineBox>
      */
-    #[ORM\OneToMany(targetEntity: MedecineBox::class, mappedBy: 'treatment')]
-    private Collection $Medecine_boxes;
 
     /**
      * @var Collection<int, TreatmentTime>
@@ -34,9 +36,15 @@ class Treatment
     #[ORM\OneToMany(targetEntity: TreatmentTime::class, mappedBy: 'treatment')]
     private Collection $treatment_times;
 
+    #[ORM\Column]
+    private ?int $compartement = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MedecineBox $medecine_box = null;
+
     public function __construct()
     {
-        $this->Medecine_boxes = new ArrayCollection();
         $this->treatment_times = new ArrayCollection();
     }
 
@@ -70,36 +78,6 @@ class Treatment
     }
 
     /**
-     * @return Collection<int, MedecineBox>
-     */
-    public function getMedecineBoxes(): Collection
-    {
-        return $this->Medecine_boxes;
-    }
-
-    public function addMedecineBox(MedecineBox $medecineBox): static
-    {
-        if (!$this->Medecine_boxes->contains($medecineBox)) {
-            $this->Medecine_boxes->add($medecineBox);
-            $medecineBox->setTreatment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMedecineBox(MedecineBox $medecineBox): static
-    {
-        if ($this->Medecine_boxes->removeElement($medecineBox)) {
-            // set the owning side to null (unless already changed)
-            if ($medecineBox->getTreatment() === $this) {
-                $medecineBox->setTreatment(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, TreatmentTime>
      */
     public function getTreatmentTimes(): Collection
@@ -128,4 +106,29 @@ class Treatment
 
         return $this;
     }
+
+    public function getCompartement(): ?int
+    {
+        return $this->compartement;
+    }
+
+    public function setCompartement(int $compartement): static
+    {
+        $this->compartement = $compartement;
+
+        return $this;
+    }
+
+    public function getMedecineBox(): ?MedecineBox
+    {
+        return $this->medecine_box;
+    }
+
+    public function setMedecineBox(MedecineBox $medecine_box): static
+    {
+        $this->medecine_box = $medecine_box;
+
+        return $this;
+    }
+
 }

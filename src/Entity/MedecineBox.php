@@ -40,8 +40,6 @@ class MedecineBox
     #[ORM\OneToOne(mappedBy: 'medecine_box', cascade: ['persist', 'remove'])]
     private ?Compartment $compartment = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Medecine_boxes')]
-    private ?Treatment $treatment = null;
 
     public function getId(): ?int
     {
@@ -154,15 +152,4 @@ class MedecineBox
         return $this;
     }
 
-    public function getTreatment(): ?Treatment
-    {
-        return $this->treatment;
-    }
-
-    public function setTreatment(?Treatment $treatment): static
-    {
-        $this->treatment = $treatment;
-
-        return $this;
-    }
 }

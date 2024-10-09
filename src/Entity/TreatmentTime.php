@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TreatmentTimeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TreatmentTimeRepository::class)]
 class TreatmentTime
@@ -12,13 +13,16 @@ class TreatmentTime
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getTreatment"])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[Groups(["getTreatment"])]
     private ?\DateTimeInterface $time = null;
 
     #[ORM\ManyToOne(inversedBy: 'treatment_times')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["getTreatment","getTreatmentTime"])]
     private ?Treatment $treatment = null;
 
     public function getId(): ?int

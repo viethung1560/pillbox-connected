@@ -3,12 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Treatment;
-use App\Entity\TreatmentTime;
+use App\Repository\MedecineBoxRepository;
 use App\Repository\TreatmentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -19,16 +22,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 class TreatmentController extends AbstractController
 {
     #[Route('/treatment', name: 'treatments', methods: ['GET'])]
-    public function index(TreatmentRepository $repository, SerializerInterface $serializer): JsonResponse
+    public function getTreatments(TreatmentRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $treatments = $repository->findAll();
-
         $encoder = new JsonEncoder();
         $defaultContext = [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function (Treatment $object, ?string $format, array $context): int {
                 return $object->getId();
             },
-            'datetime_format' => 'Y-m-d H:i:s',
         ];
         $normalizer = new ObjectNormalizer(null, null, null, null, null, null, $defaultContext);
         $serializer = new Serializer([new DateTimeNormalizer(), $normalizer], [$encoder]);
@@ -47,7 +48,6 @@ class TreatmentController extends AbstractController
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function (Treatment $object, ?string $format, array $context): int {
                 return $object->getId();
             },
-            'datetime_format' => 'Y-m-d H:i:s',
         ];
         $normalizer = new ObjectNormalizer(null, null, null, null, null, null, $defaultContext);
         $serializer = new Serializer([new DateTimeNormalizer(), $normalizer], [$encoder]);
@@ -56,5 +56,24 @@ class TreatmentController extends AbstractController
         return new JsonResponse($jsonTreatments, Response::HTTP_OK, [], true);
     }
 
+    #[Route('/treatment', name: 'createTreatment', methods: ['POST'])]
+    public function createTreatment(Request $request, SerializerInterface $serializer,MedecineBoxRepository $medecineBoxRepository , EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+    {
+
+        $treatment = $serializer->deserialize($request->getContent(), Treatment::class, 'json');
+
+        $content = $request->toArray();
+
+        $treatment_id = $content['treatment_id'] ?? -1;
+
+        $em->persist($treatment);
+        $em->flush();
+
+        $jsonTreatments = $serializer->serialize($treatment, 'json');
+
+        $location = $urlGenerator->generate('treatmentId', ['id' => $treatment->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return new JsonResponse($jsonTreatments, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
 
 }
