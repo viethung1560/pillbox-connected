@@ -33,7 +33,6 @@ class TreatmentTimeFixtures extends Fixture
                 $manager->persist($treatmentTime);
                 // Associer ce `TreatmentTime` au `Treatment`
                 $treatment->addTreatmentTime($treatmentTime);
-                dump($treatment);
 
                 // Persist de `TreatmentTime`
             }
