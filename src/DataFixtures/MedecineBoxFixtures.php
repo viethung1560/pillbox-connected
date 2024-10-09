@@ -59,6 +59,7 @@ class MedecineBoxFixtures extends Fixture
     {
         return [
             DrugFixtures::class, // Assurer que DrugFixtures soit chargée avant
+            TreatmentFixtures::class,
         ];
     }
 }
