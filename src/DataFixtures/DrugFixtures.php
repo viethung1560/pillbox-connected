@@ -5,7 +5,6 @@ namespace App\DataFixtures;
 use App\Entity\Drug;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
 use Symfony\Component\Uid\Uuid;
 
 class DrugFixtures extends Fixture
