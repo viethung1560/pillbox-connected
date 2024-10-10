@@ -16,6 +16,15 @@ class TreatmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Treatment::class);
     }
 
+/*    public function getTreatmentById($propriete, $signe, $calorie){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.' . $propriete . ' ' .  $signe . ' :val')
+            ->setParameter('val', $calorie)
+            ->getQuery()
+            ->getResult()
+            ;
+    }*/
+
 //    /**
 //     * @return Treatment[] Returns an array of Treatment objects
 //     */
