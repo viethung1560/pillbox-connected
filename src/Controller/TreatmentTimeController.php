@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\TreatmentTime;
 use App\Repository\TreatmentRepository;
 use App\Repository\TreatmentTimeRepository;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,17 +60,18 @@ class TreatmentTimeController extends AbstractController
     #[Route('/treatments/time/next', name: 'getNextTreatmentTime', methods: ['GET'])]
     public function getNextTreatmentTime(TreatmentTimeRepository $repository, SerializerInterface $serializer): JsonResponse
     {
-        $now = new \DateTime();
+        $timezone = new DateTimeZone('Europe/Paris');
+        $now = new \DateTime('now',$timezone);
+        $currentTime = $now->format('H:i:s');
 
         $treatmentTimes = $repository->findAll();
-        $minDiff = PHP_INT_MAX;
+        $closetTraitmentTime = null;
 
         foreach ($treatmentTimes as $treatmentTime) {
-            $diff = abs($now->getTimestamp() - $treatmentTime->getTime()->getTimestamp());
-
-            if ($diff < $minDiff) {
-                $minDiff = $diff;
-                $closetTraitmentTime = $treatmentTime;
+            if ($treatmentTime->getTime()->format('H:i:s') > $currentTime) {
+                if ($closetTraitmentTime === null || $treatmentTime->getTime() < $closetTraitmentTime->getTime()) {
+                    $closetTraitmentTime = $treatmentTime;
+                }
             }
         }
 

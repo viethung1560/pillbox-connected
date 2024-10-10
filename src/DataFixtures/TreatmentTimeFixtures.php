@@ -12,8 +12,7 @@ class TreatmentTimeFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Les heures spécifiques disponibles
-        $possibleTimes = ['08:00:00', '13:00:00', '19:00:00'];
+        $faker = Factory::create();
 
         $treatments = $manager->getRepository(Treatment::class)->findAll();
 
@@ -26,9 +25,8 @@ class TreatmentTimeFixtures extends Fixture
             for ($j = 0; $j < $frequency; $j++) {
                 $treatmentTime = new TreatmentTime();
 
-                // Choisir une heure aléatoire parmi 08:00, 13:00 et 19:00
-                $randomTime = $possibleTimes[array_rand($possibleTimes)];
-                $treatmentTime->setTime(new \DateTime($randomTime));
+                $randomDateTime = $faker->dateTimeBetween('-5 days', 'now');
+                $treatmentTime->setTime($randomDateTime);
 
                 $manager->persist($treatmentTime);
                 // Associer ce `TreatmentTime` au `Treatment`
