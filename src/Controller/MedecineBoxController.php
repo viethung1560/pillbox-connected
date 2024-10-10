@@ -41,12 +41,12 @@ class MedecineBoxController extends AbstractController
         $data = json_decode($request->getContent(), true);
         
         if (!isset($data['drug_id'])) {
-            return new Response('drug_id is required', 400);
+            return new JsonResponse('drug_id is required', 400);
         }
 
         $drug = $em->getRepository(Drug::class)->find($data['drug_id']);
         if (!$drug) {
-            return new Response('Drug not found', 404);
+            return new JsonResponse('Drug not found', 404);
         }
 
         $medecineBox = $serializer->deserialize($request->getContent(), MedecineBox::class, 'json');

@@ -62,9 +62,18 @@ class TreatmentController extends AbstractController
 
         $treatment = $serializer->deserialize($request->getContent(), Treatment::class, 'json');
 
-        $content = $request->toArray();
+        $data = json_decode($request->getContent(), true);
 
-        $treatment_id = $content['treatment_id'] ?? -1;
+        if (!isset($data['medecine_box_id'])) {
+            return new JsonResponse('medecine_box is required', 400);
+        }
+
+        if (!$medecineBoxRepository->find($data['medecine_box_id'])) {
+            return new JsonResponse('medecine_box not found', 400);
+        }
+
+        $treatment->setMedecineBox($medecineBoxRepository->find($data['medecine_box_id']));
+
 
         $em->persist($treatment);
         $em->flush();
