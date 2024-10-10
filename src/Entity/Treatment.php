@@ -37,6 +37,7 @@ class Treatment
     private Collection $treatment_times;
 
     #[ORM\Column]
+    #[Groups(["getTreatment"])]
     private ?int $compartement = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
