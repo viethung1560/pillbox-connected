@@ -37,10 +37,6 @@ class MedecineBox
     // 'usr' instead of 'user' since 'user' is a reserved word.
     private ?User $usr = null;
 
-    #[ORM\OneToOne(mappedBy: 'medecine_box', cascade: ['persist', 'remove'])]
-    private ?Compartment $compartment = null;
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -130,26 +126,5 @@ class MedecineBox
         return $this;
     }
 
-    public function getCompartment(): ?Compartment
-    {
-        return $this->compartment;
-    }
-
-    public function setCompartment(?Compartment $compartment): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($compartment === null && $this->compartment !== null) {
-            $this->compartment->setMedecineBox(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($compartment !== null && $compartment->getMedecineBox() !== $this) {
-            $compartment->setMedecineBox($this);
-        }
-
-        $this->compartment = $compartment;
-
-        return $this;
-    }
 
 }
