@@ -56,4 +56,25 @@ class TreatmentTimeController extends AbstractController
         return new JsonResponse(['message' => "Object deleted"], Response::HTTP_NO_CONTENT);
     }
 
+    #[Route('/treatments/time/next', name: 'getNextTreatmentTime', methods: ['GET'])]
+    public function getNextTreatmentTime(TreatmentTimeRepository $repository, SerializerInterface $serializer): JsonResponse
+    {
+        $now = new \DateTime();
+
+        $treatmentTimes = $repository->findAll();
+        $minDiff = PHP_INT_MAX;
+
+        foreach ($treatmentTimes as $treatmentTime) {
+            $diff = abs($now->getTimestamp() - $treatmentTime->getTime()->getTimestamp());
+
+            if ($diff < $minDiff) {
+                $minDiff = $diff;
+                $closetTraitmentTime = $treatmentTime;
+            }
+        }
+
+        $jsonTreatmentTime = $serializer->serialize($closetTraitmentTime, 'json', ['groups' => 'getTreatment']);
+        return new JsonResponse($jsonTreatmentTime, Response::HTTP_OK, [], true);
+    }
+
 }
