@@ -40,7 +40,7 @@ class Treatment
     #[Groups(["getTreatment"])]
     private ?int $compartement = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?MedecineBox $medecine_box = null;
 
