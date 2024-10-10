@@ -6,6 +6,7 @@ use App\Entity\Treatment;
 use App\Repository\MedecineBoxRepository;
 use App\Repository\TreatmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use HttpResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,6 +84,22 @@ class TreatmentController extends AbstractController
         $location = $urlGenerator->generate('treatmentId', ['id' => $treatment->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonTreatments, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
+
+    #[Route('/treatment/{id}', name: 'createTreatment', methods: ['DELETE'])]
+    public function deleteTreatment(EntityManagerInterface $em, Treatment $treatment): JsonResponse
+    {
+        $treatmentTimes = $treatment->getTreatmentTimes();
+        if (!$treatmentTimes->isEmpty()) {
+            foreach ($treatmentTimes as $treatmentTime) {
+                $em->remove($treatmentTime);
+            }
+        }
+
+        $em->remove($treatment);
+        $em->flush();
+
+        return new JsonResponse(['message' => "Object deleted"], Response::HTTP_NO_CONTENT);
     }
 
 }
