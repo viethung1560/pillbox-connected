@@ -47,7 +47,7 @@ class TreatmentTimeController extends AbstractController
         return new JsonResponse($jsonTreatments, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/treatments/time/{id}', name: 'createTreatment', methods: ['DELETE'])]
+    #[Route('/treatments/time/{id}', name: 'deleteTreatment', methods: ['DELETE'])]
     public function deleteTreatment(EntityManagerInterface $em, TreatmentTime $treatmentTime): JsonResponse
     {
 

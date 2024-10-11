@@ -22,6 +22,33 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class TreatmentController extends AbstractController
 {
+    #[Route('/treatment', name: 'createTreatment', methods: ['POST'])]
+    public function createTreatment(Request $request, SerializerInterface $serializer,MedecineBoxRepository $medecineBoxRepository , EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+    {
+        $treatment = $serializer->deserialize($request->getContent(), Treatment::class, 'json');
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['medecine_box_id'])) {
+            return new JsonResponse('medecine_box is required', 400);
+        }
+
+        if (!$medecineBoxRepository->find($data['medecine_box_id'])) {
+            return new JsonResponse('medecine_box not found', 400);
+        }
+
+        $treatment->setMedecineBox($medecineBoxRepository->find($data['medecine_box_id']));
+
+
+        $em->persist($treatment);
+        $em->flush();
+
+        $jsonTreatments = $serializer->serialize($treatment, 'json');
+
+        $location = $urlGenerator->generate('treatmentId', ['id' => $treatment->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return new JsonResponse($jsonTreatments, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
     #[Route('/treatment', name: 'treatments', methods: ['GET'])]
     public function getTreatments(TreatmentRepository $repository, SerializerInterface $serializer): JsonResponse
     {
@@ -55,35 +82,6 @@ class TreatmentController extends AbstractController
 
         $jsonTreatments = $serializer->serialize($treatment, 'json');
         return new JsonResponse($jsonTreatments, Response::HTTP_OK, [], true);
-    }
-
-    #[Route('/treatment', name: 'createTreatment', methods: ['POST'])]
-    public function createTreatment(Request $request, SerializerInterface $serializer,MedecineBoxRepository $medecineBoxRepository , EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
-    {
-
-        $treatment = $serializer->deserialize($request->getContent(), Treatment::class, 'json');
-
-        $data = json_decode($request->getContent(), true);
-
-        if (!isset($data['medecine_box_id'])) {
-            return new JsonResponse('medecine_box is required', 400);
-        }
-
-        if (!$medecineBoxRepository->find($data['medecine_box_id'])) {
-            return new JsonResponse('medecine_box not found', 400);
-        }
-
-        $treatment->setMedecineBox($medecineBoxRepository->find($data['medecine_box_id']));
-
-
-        $em->persist($treatment);
-        $em->flush();
-
-        $jsonTreatments = $serializer->serialize($treatment, 'json');
-
-        $location = $urlGenerator->generate('treatmentId', ['id' => $treatment->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        return new JsonResponse($jsonTreatments, Response::HTTP_CREATED, ["Location" => $location], true);
     }
 
     #[Route('/treatment/{id}', name: 'deleteTreatment', methods: ['DELETE'])]
